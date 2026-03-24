@@ -1,7 +1,13 @@
 # WinApp-GUI-Reporter
 A lightweight, standalone PowerShell script that audits your Windows system for installed software. It bypasses the "noise" of system drivers and SDKs, providing a clean, categorized list of your actual applications and games.
 
-## ✨ Features
+## Screenshots
+
+<img src="https://github.com/TBNRBERRY/WinApp-GUI-Reporter/blob/main/Screenshots/Main%20GUI%20-%20APPLICATIONS.png" width="343" height="421.5" /> <img src="https://github.com/TBNRBERRY/WinApp-GUI-Reporter/blob/main/Screenshots/Main%20GUI%20-%20DEV%20%26%20CODING%20TOOLS.png" width="343" height="421.5" />
+<img src="https://github.com/TBNRBERRY/WinApp-GUI-Reporter/blob/main/Screenshots/Main%20GUI%20-%20DRIVERS%20%26%20HARDWARE.png" width="343" height="421.5" /> <img src="https://github.com/TBNRBERRY/WinApp-GUI-Reporter/blob/main/Screenshots/Main%20GUI%20-%20STEAM%20GAMES.png" width="343" height="421.5" />
+<img src="https://github.com/TBNRBERRY/WinApp-GUI-Reporter/blob/main/Screenshots/Find%20Feature.png" width="343" height="421.5" /> <img src="https://github.com/TBNRBERRY/WinApp-GUI-Reporter/blob/main/Screenshots/Find%20%26%20Replace%20Feature.png" width="343" height="421.5" />
+
+## Features
 - **Smart Categorization**: Automatically groups items into `STEAM GAMES`, `DEV TOOLS`, `DRIVERS`, and `APPLICATIONS`.
 - **Dual-Architecture Scanning**: Scans both 64-bit and 32-bit registry hives (`HKLM` and `HKCU`).
 - **Built-in Editor**: A GUI window allows you to live-edit the list before saving.
@@ -11,7 +17,7 @@ A lightweight, standalone PowerShell script that audits your Windows system for 
   - `Copy All` to clipboard functionality.
 - **Clean Output**: Automatically excludes Windows updates, redistributables, and development "packs."
 
-## 🚀 How to Use
+## How to Use
 1. Download the `AppInventory.ps1` file.
 2. Right-click the file and select **Run with PowerShell**.
 3. (Optional) If you get an execution policy error, run this command in PowerShell first:
