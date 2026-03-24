@@ -1,6 +1,6 @@
 # This script retrieves a list of every installed application (64-bit and 32-bit)
 
-# --- PART 1: DATA COLLECTION & CATEGORIZATION ---
+# --- PART 1: DATA COLLECTION ---
 $computername = $env:COMPUTERNAME
 $hives = @{
     "LocalMachine" = @(
@@ -12,7 +12,7 @@ $hives = @{
     )
 }
 
-$excludePatterns = "Driver Package|Windows Software Development Kit|SDK|Redistributable|Update for|Web Deploy|Target|Templates|Runtime"
+$excludePatterns = "Driver Package|Windows Software Development Kit|SDK|Redistributable|Update for|Web Deploy|Target|Templates|Runtime|Microsoft Update Health Tools"
 
 # Define our Categories
 $Categories = @{
@@ -39,10 +39,10 @@ foreach ($hive in $hives.Keys) {
                 if ($UninstallPath -match "steam://" -or $path -match "Steam") {
                     $Categories["STEAM GAMES"].Add($DisplayName)
                 }
-                elseif ($DisplayName -match "Git|Visual Studio|Node\.js|Python|Unity|Rustup|SQL|Cocos|Cursor|Sublime") {
+                elseif ($DisplayName -match "Git|Visual Studio|Node\.js|Python|Unity|Rustup|SQL|Cocos|Cursor|Sublime|Java|GameInput") {
                     $Categories["DEV & CODING TOOLS"].Add($DisplayName)
                 }
-                elseif ($DisplayName -match "Driver|Realtek|NVIDIA|AMD|GIGABYTE|Intel|USB|WIA|Controller") {
+                elseif ($DisplayName -match "Driver|Realtek|NVIDIA|AMD|GIGABYTE|GBT|Intel|USB|WIA|Controller|Asus|MSI|Msi|IIS") {
                     $Categories["DRIVERS & HARDWARE"].Add($DisplayName)
                 }
                 else {
@@ -63,7 +63,7 @@ foreach ($cat in $Categories.Keys | Sort-Object) {
     }
 }
 
-# --- PART 2: THE GUI ---
+# --- PART 2: THE MAIN GUI ---
 $form = New-Object Windows.Forms.Form
 $form.Text = "Categorized App Inventory"
 $form.Size = New-Object Drawing.Size(700, 850)
@@ -84,67 +84,112 @@ $form.Add_Shown({
     $textBox.SelectionLength = 0
 })
 
-# --- FIND / REPLACE LOGIC ---
-$form.Add_KeyDown({
-    if ($_.Control -and $_.KeyCode -eq "F") { Show-Search -ReplaceMode $false }
-    if ($_.Control -and $_.KeyCode -eq "H") { Show-Search -ReplaceMode $true }
-})
+# --- PART 3: THE FIND AND REPLACE DIALOG ---
+function Show-FindReplace($InitialTab) {
+    $diag = New-Object Windows.Forms.Form
+    $diag.Text = "Find and Replace"; $diag.Size = "520, 280"; $diag.FormBorderStyle = "FixedDialog"; $diag.MaximizeBox = $false; $diag.MinimizeBox = $false; $diag.StartPosition = "CenterParent"
 
-function Show-Search($ReplaceMode) {
-    $searchForm = New-Object Windows.Forms.Form
-    $searchForm.Text = if ($ReplaceMode) { "Find and Replace" } else { "Find" }
-    $searchForm.Size = New-Object Drawing.Size(350, 180)
-    $searchForm.StartPosition = "CenterParent"
-    $searchForm.FormBorderStyle = "FixedDialog"
+    $tabs = New-Object Windows.Forms.TabControl; $tabs.Size = "370, 210"; $tabs.Location = "10,10"
+    $tabFind = New-Object Windows.Forms.TabPage; $tabFind.Text = "Find"
+    $tabRep = New-Object Windows.Forms.TabPage; $tabRep.Text = "Replace"
+    $tabs.Controls.AddRange(@($tabFind, $tabRep))
+    if ($InitialTab -eq "Replace") { $tabs.SelectedTab = $tabRep }
 
-    $txtFind = New-Object Windows.Forms.TextBox
-    $txtFind.Location = "100,20"
-    $txtFind.Width = 200
-    $searchForm.Controls.Add($txtFind)
+    # Find Tab UI
+    $txtFind = New-Object Windows.Forms.TextBox; $txtFind.Location = "100,28"; $txtFind.Width = 240; $tabFind.Controls.Add($txtFind)
+    $chkMatch = New-Object Windows.Forms.CheckBox; $chkMatch.Text = "Match Case"; $chkMatch.Location = "100, 70"; $tabFind.Controls.Add($chkMatch)
+    $lblFind = New-Object Windows.Forms.Label; $lblFind.Text = "Find:"; $lblFind.Location = "10,30"; $tabFind.Controls.Add($lblFind)
 
-    $lblFind = New-Object Windows.Forms.Label
-    $lblFind.Text = "Find:"
-    $lblFind.Location = "10,22"
-    $searchForm.Controls.Add($lblFind)
+    # Replace Tab UI
+    $txtFindR = New-Object Windows.Forms.TextBox; $txtFindR.Location = "100,28"; $txtFindR.Width = 240; $tabRep.Controls.Add($txtFindR)
+    $lblFindR = New-Object Windows.Forms.Label; $lblFindR.Text = "Find:"; $lblFindR.Location = "10,30"; $tabRep.Controls.Add($lblFindR)
+    $txtRep = New-Object Windows.Forms.TextBox; $txtRep.Location = "100,63"; $txtRep.Width = 240; $tabRep.Controls.Add($txtRep)
+    $chkMatchR = New-Object Windows.Forms.CheckBox; $chkMatchR.Text = "Match Case"; $chkMatchR.Location = "100, 110"; $tabRep.Controls.Add($chkMatchR)
+    $lblRep = New-Object Windows.Forms.Label; $lblRep.Text = "Replace With:"; $lblRep.Location = "10,65"; $tabRep.Controls.Add($lblRep)
 
-    if ($ReplaceMode) {
-        $txtRep = New-Object Windows.Forms.TextBox
-        $txtRep.Location = "100,60"
-        $txtRep.Width = 200
-        $searchForm.Controls.Add($txtRep)
+    # Action Buttons
+    $btnNext = New-Object Windows.Forms.Button; $btnNext.Text = "Find Next"; $btnNext.Location = "395,30"; $btnNext.Width = 95; $diag.Controls.Add($btnNext)
+    $btnReplace = New-Object Windows.Forms.Button; $btnReplace.Text = "Replace"; $btnReplace.Location = "395,60"; $btnReplace.Width = 95; $diag.Controls.Add($btnReplace)
+    $btnRepAll = New-Object Windows.Forms.Button; $btnRepAll.Text = "Replace All"; $btnRepAll.Location = "395,90"; $btnRepAll.Width = 95; $diag.Controls.Add($btnRepAll)
+    $btnCancel = New-Object Windows.Forms.Button; $btnCancel.Text = "Cancel"; $btnCancel.Location = "395,120"; $btnCancel.Width = 95; $diag.Controls.Add($btnCancel)
 
-        $lblRep = New-Object Windows.Forms.Label
-        $lblRep.Text = "Replace with:"
-        $lblRep.Location = "10,62"
-        $searchForm.Controls.Add($lblRep)
+    # Logic: Find Next
+    $script:findNextLogic = {
+        $search = if ($tabs.SelectedTab -eq $tabFind) { $txtFind.Text } else { $txtFindR.Text }
+        if (-not $search) { return $false }
+        $opt = if ($chkMatch.Checked -or $chkMatchR.Checked) { [System.StringComparison]::Ordinal } else { [System.StringComparison]::OrdinalIgnoreCase }
+        $idx = $textBox.Text.IndexOf($search, $textBox.SelectionStart + $textBox.SelectionLength, $opt)
+        if ($idx -eq -1) { $idx = $textBox.Text.IndexOf($search, 0, $opt) }
+        if ($idx -ne -1) { $textBox.Focus(); $textBox.Select($idx, $search.Length); $textBox.ScrollToCaret(); return $true }
+        return $false
     }
+    $btnNext.Add_Click({ &$script:findNextLogic })
 
-    $btnDo = New-Object Windows.Forms.Button
-    $btnDo.Text = if ($ReplaceMode) { "Replace All" } else { "Find Next" }
-    $btnDo.Location = "225,100"
-    $searchForm.Controls.Add($btnDo)
+    # Logic: Replace (Single)
+    $btnReplace.Add_Click({
+        $search = $txtFindR.Text
+        if (-not $search) { return }
+        # If the currently selected text matches the search term, replace it
+        $opt = if ($chkMatchR.Checked) { [System.StringComparison]::Ordinal } else { [System.StringComparison]::OrdinalIgnoreCase }
+        if ($textBox.SelectedText.Equals($search, $opt)) {
+            $textBox.SelectedText = $txtRep.Text
+        }
+        # Move to the next one
+        &$script:findNextLogic
+    })
 
-    $btnDo.Add_Click({
-        if ($ReplaceMode) {
-            $textBox.Text = $textBox.Text.Replace($txtFind.Text, $txtRep.Text)
-        } else {
-            $startIndex = $textBox.Text.IndexOf($txtFind.Text, $textBox.SelectionStart + $textBox.SelectionLength)
-            if ($startIndex -eq -1) { $startIndex = $textBox.Text.IndexOf($txtFind.Text) } # Wrap around
-            if ($startIndex -ne -1) {
-                $textBox.Focus()
-                $textBox.Select($startIndex, $txtFind.Text.Length)
-                $textBox.ScrollToCaret()
-            }
+    # Logic: Replace All (FIXED SYNTAX)
+    $btnRepAll.Add_Click({
+        if ($txtFindR.Text) {
+            $rOpt = if ($chkMatchR.Checked) { [System.Text.RegularExpressions.RegexOptions]::None } else { [System.Text.RegularExpressions.RegexOptions]::IgnoreCase }
+            $pattern = [System.Text.RegularExpressions.Regex]::Escape($txtFindR.Text)
+            $textBox.Text = [System.Text.RegularExpressions.Regex]::Replace($textBox.Text, $pattern, $txtRep.Text, $rOpt)
         }
     })
-    $searchForm.ShowDialog()
+
+    $btnCancel.Add_Click({ $diag.Close() })
+    $diag.Controls.Add($tabs)
+    $diag.ShowDialog()
 }
 
-# Panel for Buttons
-$buttonPanel = New-Object Windows.Forms.Panel
-$buttonPanel.Dock = "Bottom"
-$buttonPanel.Height = 60
-$form.Controls.Add($buttonPanel)
+# Shortcut Listeners
+$form.Add_KeyDown({
+    if ($_.Control -and $_.KeyCode -eq "F") { Show-FindReplace -InitialTab "Find" }
+    if ($_.Control -and $_.KeyCode -eq "H") { Show-FindReplace -InitialTab "Replace" }
+})
+
+# Optimized Generic Notification Function to show a Windows System Notification
+function Show-SystemNotification ($Message) {
+    $notif = New-Object Windows.Forms.NotifyIcon
+    $path = (Get-Process -id $PID).Path
+    $notif.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+    $notif.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
+    $notif.BalloonTipTitle = "App Inventory"
+    $notif.BalloonTipText = $Message
+    $notif.Visible = $true
+    
+    # Show for 2 seconds
+    $notif.ShowBalloonTip(2000)
+
+    # Self-destruct timer to clear it from the Action Center history
+    $cleanupTimer = New-Object Windows.Forms.Timer
+    $cleanupTimer.Interval = 3000 
+    
+    $cleanupTimer.Add_Tick({
+        $this.Stop()
+        $notif.Visible = $false
+        $notif.Dispose()
+        $this.Dispose()
+    }.GetNewClosure())
+
+    $cleanupTimer.Start()
+}
+
+# --- BOTTOM BUTTON PANEL ---
+$pnl = New-Object Windows.Forms.Panel
+$pnl.Dock = "Bottom"
+$pnl.Height = 60
+$form.Controls.Add($pnl)
 
 # Copy Button
 $copyButton = New-Object Windows.Forms.Button
@@ -152,25 +197,27 @@ $copyButton.Text = "Copy All"
 $copyButton.Size = "120, 35"
 $copyButton.Location = "420, 10"
 $copyButton.Add_Click({
-    [Windows.Forms.Clipboard]::SetText($textBox.Text)
-    [Windows.Forms.MessageBox]::Show("Copied to clipboard!")
+    if ($textBox.Text) {
+        [Windows.Forms.Clipboard]::SetText($textBox.Text)
+        Show-SystemNotification -Message "Copied to Clipboard!"
+    }
 })
-$buttonPanel.Controls.Add($copyButton)
+$pnl.Controls.Add($copyButton)
 
 # Save Button
 $saveButton = New-Object Windows.Forms.Button
 $saveButton.Text = "Save List"
-$saveButton.Size = New-Object Drawing.Size(120, 35)
-$saveButton.Location = New-Object Drawing.Point(550, 10)
+$saveButton.Size = "120, 35"
+$saveButton.Location = "550, 10"
 $saveButton.Add_Click({
     $saveDialog = New-Object Windows.Forms.SaveFileDialog
     $saveDialog.Filter = "Text Files (*.txt)|*.txt"
     if ($saveDialog.ShowDialog() -eq "OK") {
         $textBox.Text | Out-File $saveDialog.FileName
-        [Windows.Forms.MessageBox]::Show("File saved!", "Done")
+        Show-SystemNotification -Message "File saved successfully!"
     }
 })
-$buttonPanel.Controls.Add($saveButton)
+$pnl.Controls.Add($saveButton)
 
 # Show the GUI
 $form.ShowDialog()
