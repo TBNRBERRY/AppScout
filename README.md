@@ -3,9 +3,9 @@ A lightweight, standalone PowerShell script that audits your Windows system for 
 
 ## Screenshots
 
-<img src="https://github.com/TBNRBERRY/AppScout/blob/main/Screenshots/Main%20GUI%20-%20APPLICATIONS.png" width="343" height="421.5" /> <img src="https://github.com/TBNRBERRY/AppScout/blob/main/Screenshots/Main%20GUI%20-%20DEV%20%26%20CODING%20TOOLS.png" width="343" height="421.5" />
-<img src="https://github.com/TBNRBERRY/AppScout/blob/main/Screenshots/Main%20GUI%20-%20DRIVERS%20%26%20HARDWARE.png" width="343" height="421.5" /> <img src="https://github.com/TBNRBERRY/AppScout/blob/main/Screenshots/Main%20GUI%20-%20STEAM%20GAMES.png" width="343" height="421.5" />
-<img src="https://github.com/TBNRBERRY/AppScout/blob/main/Screenshots/Find%20Feature.png" width="343" height="421.5" /> <img src="https://github.com/TBNRBERRY/AppScout/blob/main/Screenshots/Find%20%26%20Replace%20Feature.png" width="343" height="421.5" />
+<img src="https://github.com/TBNRBERRY/AppScout/blob/main/Main%20GUI%20-%20APPLICATIONS.png" width="343" height="421.5" /> <img src="https://github.com/TBNRBERRY/AppScout/blob/main/Main%20GUI%20-%20DEV%20%26%20CODING%20TOOLS.png" width="343" height="421.5" />
+<img src="https://github.com/TBNRBERRY/AppScout/blob/main/Main%20GUI%20-%20DRIVERS%20%26%20HARDWARE.png" width="343" height="421.5" /> <img src="https://github.com/TBNRBERRY/AppScout/blob/main/Main%20GUI%20-%20STEAM%20GAMES.png" width="343" height="421.5" />
+<img src="https://github.com/TBNRBERRY/AppScout/blob/main/Find%20Feature.png" width="343" height="421.5" /> <img src="https://github.com/TBNRBERRY/AppScout/blob/main/Find%20%26%20Replace%20Feature.png" width="343" height="421.5" />
 
 ## Features
 - **Smart Categorization**: Automatically groups items into `STEAM GAMES`, `DEV TOOLS`, `DRIVERS`, and `APPLICATIONS`.
