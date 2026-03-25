@@ -65,7 +65,7 @@ foreach ($cat in $Categories.Keys | Sort-Object) {
 
 # --- PART 2: THE MAIN GUI ---
 $form = New-Object Windows.Forms.Form
-$form.Text = "Categorized App Inventory"
+$form.Text = "AppScout"
 $form.Size = New-Object Drawing.Size(700, 850)
 $form.StartPosition = "CenterScreen"
 $form.KeyPreview = $true # Needed for shortcuts
@@ -164,7 +164,7 @@ function Show-SystemNotification ($Message) {
     $path = (Get-Process -id $PID).Path
     $notif.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
     $notif.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Info
-    $notif.BalloonTipTitle = "App Inventory"
+    $notif.BalloonTipTitle = "AppScout"
     $notif.BalloonTipText = $Message
     $notif.Visible = $true
     
